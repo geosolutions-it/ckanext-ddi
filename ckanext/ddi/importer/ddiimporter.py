@@ -1,6 +1,5 @@
 import requests
 import codecs
-from pprint import pprint
 
 import ckan.plugins.toolkit as tk
 from ckan.lib.munge import munge_title_to_name, munge_name
@@ -116,7 +115,7 @@ class DdiImporter(HarvesterBase):
                     'Could not upload file: %s' % str(e)
                 )
 
-        pprint(pkg_dict)
+        log.debug(pkg_dict['name'])
         return pkg_dict['name']
 
     def improve_pkg_dict(self, pkg_dict, params):

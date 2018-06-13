@@ -10,7 +10,7 @@ import ckan.lib.base as base
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.helpers as h
 import ckan.model as model
-import ckan.lib.plugins
+import ckan.lib.plugins as p
 import ckan.lib.render
 
 from ckan.common import _, request, c
@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 render = base.render
 abort = base.abort
-redirect = base.redirect
+redirect = h.redirect_to
 
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
@@ -35,6 +35,9 @@ parse_params = logic.parse_params
 flatten_to_string_key = logic.flatten_to_string_key
 
 lookup_package_plugin = ckan.lib.plugins.lookup_package_plugin
+
+
+toolkit = p.toolkit
 
 
 class ImportFromXml(PackageController):
@@ -86,14 +89,8 @@ class ImportFromXml(PackageController):
                                        package_type=package_type)
 
         new_template = self._new_template(package_type)
-        c.form = ckan.lib.render.deprecated_lazy_render(
-            new_template,
-            form_snippet,
-            lambda: render(form_snippet, extra_vars=form_vars),
-            'use of c.form is deprecated. please see '
-            'ckan/templates/package/base_form_page.html for an example '
-            'of the new way to include the form snippet'
-            )
+        c.form = toolkit.render_snippet(
+            form_snippet, form_vars)
         return render(new_template,
                       extra_vars={'form_vars': form_vars,
                                   'form_snippet': form_snippet,

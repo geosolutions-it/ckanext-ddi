@@ -136,6 +136,8 @@ class DdiImporter(HarvesterBase):
         else:
             pkg_dict['license_id'] = config.get('ckanext.ddi.default_license')
 
+        pkg_dict['archived'] = 'False'
+
         return pkg_dict
 
 

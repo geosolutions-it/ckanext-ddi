@@ -64,6 +64,8 @@ class DdiImporter(HarvesterBase):
         pkg_dict = self.improve_pkg_dict(pkg_dict, params)
         try:
             return self.insert_or_update_pkg(pkg_dict, upload)
+        except tk.ValidationError, e:
+            raise e
         except Exception, e:
             raise ContentImportError(
                 'Could not import dataset %s: %s'

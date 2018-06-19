@@ -3,7 +3,23 @@
 {% resource 'ddi/ddi-import.js' %}
 
 <form class="dataset-form form-horizontal" method="post" enctype="multipart/form-data" action="importfile" data-module="basic-form">
-  {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
+  {% block errors %}
+    {% if error_summary %}
+      {% set errors = error_summary %}
+    {% endif %}
+
+    {% if errors %}
+      <div class="error-explanation alert alert-error">
+        <p>{{ _('Errors were found in the XML file:') }}</p>
+        <ul>
+          {% for key, error in errors.items() %}
+            <li data-field-label="{{ key }}">{% if key %}{{ key }}: {% endif %}{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+  {% endblock %}
 
   {% block basic_fields_url %}
     {% set is_upload = (data.url_type == 'upload') %}

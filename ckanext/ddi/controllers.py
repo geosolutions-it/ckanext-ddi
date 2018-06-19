@@ -128,10 +128,18 @@ class ImportFromXml(PackageController):
             h.flash_success(
                 _('Dataset import from XML successfully completed!')
             )
+        except ValidationError, e:
+            errors = e.error_dict
+            error_summary = e.error_summary
+
+            return self.import_form(data, errors, error_summary)
+
         except Exception as e:
-            h.flash_error(
-                _('Dataset import from XML failed: %s' % str(e))
-            )
+            errors = {
+              'import': _('Dataset import from XML failed: %s' % str(e))
+            }
+
+            return self.import_form(data, errors)
         finally:
             if file_path is not None:
                 os.remove(file_path)
@@ -139,7 +147,10 @@ class ImportFromXml(PackageController):
         if pkg_id is not None:
             redirect(h.url_for(controller='package', action='read', id=pkg_id))
         else:
-            redirect(h.url_for(controller='package', action='search'))
+            redirect(h.url_for(
+                controller='ckanext.ddi.controllers:ImportFromXml',
+                action='import_form'
+            ))
 
     def _save_temp_file(self, fileobj):
         fd, file_path = tempfile.mkstemp()

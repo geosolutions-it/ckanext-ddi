@@ -99,6 +99,10 @@ class ImportFromXml(PackageController):
     def run_import(self, data=None, errors=None, error_summary=None):
         pkg_id = None
         file_path = None
+
+        data = clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
+            request.params, ignore_keys=CACHE_PARAMETERS))))
+
         try:
             user = c.user or c.author
             importer = ddiimporter.DdiImporter(username=user)
@@ -109,11 +113,15 @@ class ImportFromXml(PackageController):
                 log.debug('file_path: %s' % file_path)
                 pkg_id = importer.run(
                     file_path=file_path,
-                    upload=request.params['upload']
+                    upload=request.params['upload'],
+                    data=data,
                 )
             elif 'url' in request.params and request.params['url']:
                 log.debug('url: %s' % request.params['url'])
-                pkg_id = importer.run(url=request.params['url'])
+                pkg_id = importer.run(
+                    url=request.params['url'],
+                    data=data,
+                )
 
             if pkg_id is None:
                 raise PackageImportError(

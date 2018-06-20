@@ -17,7 +17,7 @@ class DdiImporter(HarvesterBase):
     def __init__(self, username=None):
         self.username = username
 
-    def run(self, file_path=None, url=None, params=None, upload=None):
+    def run(self, file_path=None, url=None, params=None, upload=None, data=None):
         pkg_dict = None
         ckan_metadata = metadata.DdiCkanMetadata()
         if file_path is not None:
@@ -61,7 +61,7 @@ class DdiImporter(HarvesterBase):
             })
             pkg_dict['resources'] = resources
 
-        pkg_dict = self.improve_pkg_dict(pkg_dict, params)
+        pkg_dict = self.improve_pkg_dict(pkg_dict, params, data)
         try:
             return self.insert_or_update_pkg(pkg_dict, upload)
         except tk.ValidationError, e:
@@ -120,7 +120,7 @@ class DdiImporter(HarvesterBase):
         log.debug(pkg_dict['name'])
         return pkg_dict['name']
 
-    def improve_pkg_dict(self, pkg_dict, params):
+    def improve_pkg_dict(self, pkg_dict, params, data=None):
         if pkg_dict['name'] != '':
             pkg_dict['name'] = munge_name(pkg_dict['name']).replace('_', '-')
         else:
@@ -136,7 +136,12 @@ class DdiImporter(HarvesterBase):
         else:
             pkg_dict['license_id'] = config.get('ckanext.ddi.default_license')
 
-        pkg_dict['archived'] = 'False'
+        if data:
+            for field in ('owner_org', 'private'):
+                if field in data:
+                    pkg_dict[field] = data[field]
+
+            pkg_dict['archived'] = 'False'
 
         return pkg_dict
 

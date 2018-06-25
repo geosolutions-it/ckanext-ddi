@@ -276,6 +276,12 @@ class CkanMetadata(object):
             'contact_persons_email',
             'data_collection_technique',
             'data_collector',
+            'sampling_procedure_notes',
+            'response_rate_notes',
+            'data_collection_notes',
+            'weight_notes',
+            'clean_ops_notes',
+            'data_accs_notes',
         ])
 
     def get_attribute(self, ckan_attribute):
@@ -470,8 +476,24 @@ class DdiCkanMetadata(CkanMetadata):
                 "//ddi:codeBook/ddi:stdyDscr/ddi:method/ddi:dataColl/ddi:dataCollector"  # noqa
             ),
         ]),
-
-
+        'sampling_procedure_notes': XPathTextValue(
+            '//ddi:codeBook/ddi:stdyDscr/ddi:method/ddi:dataColl/ddi:sampProc'
+        ),
+        'response_rate_notes': XPathTextValue(
+            '//ddi:codeBook/ddi:stdyDscr/ddi:method/ddi:anlyInfo/ddi:respRate'
+        ),
+        'data_collection_notes': XPathTextValue(
+            '//ddi:codeBook/ddi:stdyDscr/ddi:method/ddi:dataColl/ddi:collSitu'
+        ),
+        'weight_notes': XPathTextValue(
+            '//ddi:codeBook/ddi:stdyDscr/ddi:method/ddi:dataColl/ddi:weight'
+        ),
+        'clean_ops_notes': XPathTextValue(
+            '//ddi:codeBook/ddi:stdyDscr/ddi:method/ddi:dataColl/ddi:cleanOps'
+        ),
+        'data_accs_notes': XPathTextValue(
+            '//ddi:codeBook/ddi:stdyDscr/ddi:dataAccs/ddi:useStmt/ddi:conditions'   # noqa
+        ),
     }
 
     def get_mapping(self):

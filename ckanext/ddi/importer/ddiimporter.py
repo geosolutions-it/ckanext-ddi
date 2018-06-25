@@ -155,6 +155,15 @@ class DdiImporter(HarvesterBase):
             pkg_dict['data_collector'] = _get_data_collector_values(
                 pkg_dict['data_collector'])
 
+        if pkg_dict.get('id_number'):
+            pkg_dict['original_id'] = pkg_dict['id_number']
+
+        if pkg_dict.get('abstract'):
+            pkg_dict['notes'] = pkg_dict['abstract']
+
+        if pkg_dict.get('abbreviation'):
+            pkg_dict['short_title'] = pkg_dict['abbreviation']
+
         return pkg_dict
 
 

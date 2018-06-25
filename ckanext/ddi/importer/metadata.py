@@ -176,6 +176,26 @@ class ArrayValue(Value):
         return value
 
 
+class ArrayDictValue(Value):
+    def get_value(self, **kwargs):
+        self.env.update(kwargs)
+        value = []
+        for attribute in self._config:
+            new_value = attribute.get_value(**kwargs)
+            try:
+                iterator = iter(new_value)
+                for inner_attribute in iterator:
+                    item = {}
+                    if hasattr(inner_attribute, 'text'):
+                        item.update({'value': inner_attribute.text.strip()})
+                    if inner_attribute.attrib:
+                        item.update(inner_attribute.attrib)
+                    value.append(item)
+            except TypeError:
+                value.append(new_value)
+        return value
+
+
 class ArrayTextValue(Value):
     def get_value(self, **kwargs):
         self.env.update(kwargs)
@@ -187,6 +207,15 @@ class ArrayTextValue(Value):
 class ArrayDictNameValue(ArrayValue):
     def get_value(self, **kwargs):
         value = super(ArrayDictNameValue, self).get_value(**kwargs)
+        return self.wrap_in_name_dict(value)
+
+    def wrap_in_name_dict(self, values):
+        return [{'name': munge_title_to_name(value)} for value in values]
+
+
+class ArrayDictValueAndAttrs(ArrayValue):
+    def get_value(self, **kwargs):
+        value = super(ArrayDictValueAndAttrs, self).get_value(**kwargs)
         return self.wrap_in_name_dict(value)
 
     def wrap_in_name_dict(self, values):
@@ -245,6 +274,8 @@ class CkanMetadata(object):
             'citation_requirement',
             'contact_persons',
             'contact_persons_email',
+            'data_collection_technique',
+            'data_collector',
         ])
 
     def get_attribute(self, ckan_attribute):
@@ -431,6 +462,16 @@ class DdiCkanMetadata(CkanMetadata):
                 "//ddi:codeBook/ddi:stdyDscr/ddi:stdyInfo/ddi:subject/ddi:keyword"  # noqa
             )
         ]),
+        'data_collection_technique': XPathTextValue(
+            "//ddi:codeBook/ddi:stdyDscr/ddi:method/ddi:dataColl/ddi:collMode"  # noqa
+        ),
+        'data_collector': ArrayDictValue([
+            XPathMultiValue(
+                "//ddi:codeBook/ddi:stdyDscr/ddi:method/ddi:dataColl/ddi:dataCollector"  # noqa
+            ),
+        ]),
+
+
     }
 
     def get_mapping(self):

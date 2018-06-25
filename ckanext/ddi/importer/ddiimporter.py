@@ -136,6 +136,8 @@ class DdiImporter(HarvesterBase):
         else:
             pkg_dict['license_id'] = config.get('ckanext.ddi.default_license')
 
+        # TODO: move all this to a interface method in ckanext-unhcr
+
         if data:
             for field in ('owner_org', 'private'):
                 if field in data:
@@ -143,7 +145,37 @@ class DdiImporter(HarvesterBase):
 
             pkg_dict['archived'] = 'False'
 
+        if pkg_dict.get('tags'):
+            pkg_dict['keywords'] = [tag['name'] for tag in pkg_dict['tags']]
+
+        if pkg_dict.get('unit_of_analysis'):
+            pkg_dict['unit_of_measurement'] = pkg_dict['unit_of_analysis']
+
+        if pkg_dict.get('data_collector'):
+            pkg_dict['data_collector'] = _get_data_collector_values(
+                pkg_dict['data_collector'])
+
         return pkg_dict
+
+
+def _get_data_collector_values(xml_values):
+
+    from ckanext.scheming.helpers import scheming_get_dataset_schema
+    out = []
+
+    schema = scheming_get_dataset_schema('dataset')
+
+    for field in schema['dataset_fields']:
+        if field['field_name'] == 'data_collector':
+            allowed_values = field['choices']
+
+    for item in xml_values:
+        for allowed_value in allowed_values:
+            if (item.get('abbr', '').lower() == allowed_value['value'] or
+                    item.get('value', '').lower() == allowed_value['label'].lower()):
+                out.append(allowed_value['value'])
+
+    return out
 
 
 class ContentFetchError(Exception):

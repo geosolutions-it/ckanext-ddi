@@ -6,6 +6,8 @@ from ckan.lib.munge import munge_title_to_name, munge_name
 from ckanext.harvest.harvesters import HarvesterBase
 from ckanext.ddi.importer import metadata
 
+from ckanext.scheming.helpers import scheming_get_dataset_schema
+
 import ckanapi
 
 import logging
@@ -155,6 +157,10 @@ class DdiImporter(HarvesterBase):
             pkg_dict['data_collector'] = _get_data_collector_values(
                 pkg_dict['data_collector'])
 
+        if pkg_dict.get('data_collection_technique'):
+            pkg_dict['data_collection_technique'] = _get_data_collection_technique_value(
+                pkg_dict['data_collection_technique'])
+
         if pkg_dict.get('id_number'):
             pkg_dict['original_id'] = pkg_dict['id_number']
 
@@ -167,12 +173,32 @@ class DdiImporter(HarvesterBase):
         return pkg_dict
 
 
+def _get_dataset_schema():
+
+    return scheming_get_dataset_schema('dataset')
+
+
+def _get_data_collection_technique_value(xml_value):
+
+    schema = _get_dataset_schema()
+
+    for field in schema['dataset_fields']:
+        if field['field_name'] == 'data_collection_technique':
+            allowed_values = field['choices']
+
+    for allowed_value in allowed_values:
+        if (xml_value.lower() == allowed_value['label'].lower() or
+                xml_value.lower() == allowed_value['value'].lower()):
+            return allowed_value['value']
+
+    return xml_value
+
+
 def _get_data_collector_values(xml_values):
 
-    from ckanext.scheming.helpers import scheming_get_dataset_schema
     out = []
 
-    schema = scheming_get_dataset_schema('dataset')
+    schema = _get_dataset_schema()
 
     for field in schema['dataset_fields']:
         if field['field_name'] == 'data_collector':

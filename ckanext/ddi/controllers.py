@@ -4,6 +4,7 @@ import logging
 import shutil
 import tempfile
 import os
+import cgi
 
 import ckan.logic as logic
 import ckan.lib.base as base
@@ -15,6 +16,8 @@ import ckan.lib.render
 
 from ckan.common import _, request, c
 from ckan.controllers.home import CACHE_PARAMETERS
+
+import ckanapi
 
 from ckanext.ddi.importer import ddiimporter
 
@@ -131,6 +134,30 @@ class ImportFromXml(PackageController):
                         file_path,
                         request.params.get('url')
                     )
+                )
+            registry = ckanapi.LocalCKAN(username=user)
+            if isinstance(request.params.get('rdf_upload'), cgi.FieldStorage):
+                registry.call_action(
+                    'resource_create',
+                    {
+                        'package_id': pkg_id,
+                        'upload': request.params['rdf_upload'],
+                        'name': 'DDI RDF',
+                        'format': 'rdf',
+                        'url': '',
+                        'type': 'attachment',
+                    }
+                )
+            elif request.params.get('rdf_url'):
+                registry.call_action(
+                    'resource_create',
+                    {
+                        'package_id': pkg_id,
+                        'url': request.params['rdf_url'],
+                        'name': 'DDI RDF',
+                        'format': 'rdf',
+                        'type': 'attachment',
+                    }
                 )
 
             h.flash_success(

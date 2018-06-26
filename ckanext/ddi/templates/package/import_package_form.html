@@ -1,6 +1,33 @@
 {% import 'macros/form.html' as form %}
 {% set form_style = c.form_style or c.action %}
-{% resource 'ddi/ddi-import.js' %}
+
+{% resource 'ddi/upload.js' %}
+
+{% macro file_upload(data, errors, field_url='image_url', field_upload='image_upload', field_clear='clear_upload',
+                      is_url=false, is_upload=false, is_upload_enabled=false, placeholder=false,
+                      url_label='', upload_label='', field_name='image_url')  %}
+  {% set placeholder = placeholder if placeholder else _('http://example.com/my-image.jpg') %}
+  {% set url_label = url_label or _('Image URL')  %}
+  {% set upload_label = upload_label or _('Image')  %}
+
+  {% if is_upload_enabled %}
+  <div class="image-upload" data-module="file-upload" data-module-is_url="{{ 'true' if is_url else 'false' }}" data-module-is_upload="{{ 'true' if is_upload else 'false' }}"
+       data-module-field_url="{{ field_url }}" data-module-field_upload="{{ field_upload }}" data-module-field_clear="{{ field_clear }}" data-module-upload_label="{{ upload_label }}" data-module-field_name="{{ field_name }}">
+  {% endif %}
+
+  {{ form.input(field_url, label=url_label, id='field-' + field_url, placeholder=placeholder, value=data.get(field_url), error=errors.get(field_url), classes=['control-full']) }}
+
+  {% if is_upload_enabled %}
+    {{ form.input(field_upload, label=upload_label, id='field-' + field_upload, type='file', placeholder='', value='', error='', classes=['control-full']) }}
+    {% if is_upload %}
+      {{ form.checkbox(field_clear, label=_('Clear Upload'), id='field-clear-upload', value='true', error='', classes=['control-full']) }}
+    {% endif %}
+  {% endif %}
+
+  {% if is_upload_enabled %}</div>{% endif %}
+
+{% endmacro %}
+
 
 <form class="dataset-form form-horizontal" method="post" enctype="multipart/form-data" action="importfile" data-module="basic-form">
   {% block errors %}
@@ -23,9 +50,15 @@
 
   {% block basic_fields_url %}
     {% set is_upload = (data.url_type == 'upload') %}
-    {{ form.image_upload(data, errors, field_url='url', field_upload='upload', field_clear='clear_upload',
+    {{ file_upload(data, errors, field_url='url', field_upload='upload', field_clear='clear_upload',
        is_upload_enabled=h.uploads_enabled(), is_url=data.url and not is_upload, is_upload=is_upload,
-       upload_label=_('XML File'), url_label=_('URL'), placeholder='http://example.com/catalog/ddi/8') }}
+       upload_label=_('XML File'), url_label=_('XML URL'), placeholder='http://example.com/catalog/ddi/8') }}
+
+    {% set rdf_is_upload = True %}
+    {{ file_upload(data, errors, field_url='rdf_url', field_upload='rdf_upload', field_clear='clear_rdf_upload',
+       is_upload_enabled=h.uploads_enabled(), is_url=false, is_upload=false,
+       upload_label=_('RDF File'), url_label=_('RDF URL'), placeholder='http://example.com/catalog/ddi/8') }}
+
   {% endblock %}
 
 
@@ -97,7 +130,7 @@
           {%- endtrans -%}
         </p>
       {% endblock %}
-      <button class="btn btn-primary" disabled="disabled" id="import-btn" type="submit" name="import">{% block import_button_text %}{{ _('Import') }}{% endblock %}</button>
+      <button class="btn btn-primary" id="import-btn" type="submit" name="import">{% block import_button_text %}{{ _('Import') }}{% endblock %}</button>
       {{ form.required_message() }}
     </div>
   {% endblock %}

@@ -30,6 +30,16 @@
 
 
 <form class="dataset-form form-horizontal" method="post" enctype="multipart/form-data" action="importfile" data-module="basic-form">
+
+  {% block stages %}
+    {{ h.snippet('package/snippets/stages.html', stages=stage) }}
+  {% endblock %}
+
+  <input type="hidden" name="_ckan_phase" value="dataset_new_1" />
+  {# pkg_name used in 3 stage edit #}
+  <input type="hidden" name="pkg_name" value="{{ data.id }}" />
+
+
   {% block errors %}
     {% if error_summary %}
       {% set errors = error_summary %}
@@ -49,9 +59,9 @@
   {% endblock %}
 
   {% block basic_fields_url %}
-    {% set is_upload = (data.url_type == 'upload') %}
+    {% set is_upload = True %}
     {{ file_upload(data, errors, field_url='url', field_upload='upload', field_clear='clear_upload',
-       is_upload_enabled=h.uploads_enabled(), is_url=data.url and not is_upload, is_upload=is_upload,
+       is_upload_enabled=h.uploads_enabled(), is_url=false, is_upload=false,
        upload_label=_('XML File'), url_label=_('XML URL'), placeholder='http://example.com/catalog/ddi/8') }}
 
     {% set rdf_is_upload = True %}

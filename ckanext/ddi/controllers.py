@@ -79,11 +79,16 @@ class ImportFromXml(PackageController):
         data['group_id'] = request.params.get('group') or \
             request.params.get('groups__0__id')
 
+        stage = ['active']
+        if data.get('state', '').startswith('draft'):
+            stage = ['active', 'complete']
+
         form_snippet = self.package_form
         form_vars = {
             'data': data, 'errors': errors,
             'error_summary': error_summary,
             'action': 'new',
+            'stage': stage,
             'dataset_type': package_type,
         }
         c.errors_json = h.json.dumps(errors)
@@ -136,6 +141,7 @@ class ImportFromXml(PackageController):
                     )
                 )
             registry = ckanapi.LocalCKAN(username=user)
+
             if isinstance(request.params.get('rdf_upload'), cgi.FieldStorage):
                 registry.call_action(
                     'resource_create',
@@ -161,7 +167,8 @@ class ImportFromXml(PackageController):
                 )
 
             h.flash_success(
-                _('Dataset import from XML successfully completed!')
+                _('Dataset import from XML successfully completed. ' +
+                  'You can now add data files to it.')
             )
         except ValidationError, e:
             errors = e.error_dict
@@ -180,7 +187,11 @@ class ImportFromXml(PackageController):
                 os.remove(file_path)
 
         if pkg_id is not None:
-            redirect(h.url_for(controller='package', action='read', id=pkg_id))
+            # redirect to add dataset resources
+            url = h.url_for(controller='package',
+                            action='new_resource',
+                            id=pkg_id)
+            redirect(url)
         else:
             redirect(h.url_for(
                 controller='ckanext.ddi.controllers:ImportFromXml',

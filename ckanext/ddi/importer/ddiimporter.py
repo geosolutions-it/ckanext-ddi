@@ -143,6 +143,10 @@ class DdiImporter(HarvesterBase):
 
         # TODO: move all this to a interface method in ckanext-unhcr
 
+        # Save as draft to enable the stages on the form
+        # TODO: what about updates (if overriding)
+        pkg_dict['state'] = 'draft'
+
         if data:
             for field in ('owner_org', 'private'):
                 if field in data:

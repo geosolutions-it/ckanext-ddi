@@ -177,6 +177,8 @@ class DdiImporter(HarvesterBase):
         if pkg_dict.get('abbreviation'):
             pkg_dict['short_title'] = pkg_dict['abbreviation']
 
+        pkg_dict['ddi'] = True
+
         return pkg_dict
 
 

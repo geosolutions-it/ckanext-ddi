@@ -267,7 +267,6 @@ class CkanMetadata(object):
             'primary_investigator',
             'other_producers',
             'funding',
-            'sampling_procedure',
             'data_collection_dates',
             'access_authority',
             'conditions',
@@ -390,9 +389,6 @@ class DdiCkanMetadata(CkanMetadata):
                 "//ddi:codeBook/ddi:stdyDscr/ddi:citation/ddi:prodStmt/ddi:fundAg"  # noqa
             ),
             separator="<br />\r\n"
-        ),
-        'sampling_procedure': XPathTextValue(
-            "//ddi:codeBook/ddi:stdyDscr/ddi:method/ddi:dataColl/ddi:sampProc"  # noqa
         ),
         'data_collection_dates': CombinedValue(
             [

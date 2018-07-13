@@ -1,3 +1,5 @@
+import re
+
 import requests
 import codecs
 
@@ -195,9 +197,16 @@ def _get_data_collection_technique_value(xml_value):
         if field['field_name'] == 'data_collection_technique':
             allowed_values = field['choices']
 
+    try:
+        brackets_code = re.search('\[.*?\]', 'Face to face [f2f]').group(0)
+        brackets_code = brackets_code.lstrip('[').rstrip(']')
+    except AttributeError:
+        brackets_code = None
+
     for allowed_value in allowed_values:
         if (xml_value.lower() == allowed_value['label'].lower() or
-                xml_value.lower() == allowed_value['value'].lower()):
+                xml_value.lower() == allowed_value['value'].lower() or
+                brackets_code.lower() == allowed_value['value']):
             return allowed_value['value']
 
     return xml_value

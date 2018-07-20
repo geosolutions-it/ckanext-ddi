@@ -198,7 +198,7 @@ def _get_data_collection_technique_value(xml_value):
             allowed_values = field['choices']
 
     try:
-        brackets_code = re.search('\[.*?\]', 'Face to face [f2f]').group(0)
+        brackets_code = re.search('\[.*?\]', xml_value).group(0)
         brackets_code = brackets_code.lstrip('[').rstrip(']')
     except AttributeError:
         brackets_code = None

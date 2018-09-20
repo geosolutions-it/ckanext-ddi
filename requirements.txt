@@ -3,7 +3,6 @@
 
 # https://github.com/ckan/ckanext-scheming.git
 git+https://github.com/ckan/ckanext-scheming.git#egg=ckanext-scheming
-ckanext-scheming
 lxml==2.2.4
 pyyaml==3.11
 requests==2.5.3

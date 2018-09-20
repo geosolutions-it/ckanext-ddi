@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import json
 import requests
 import traceback
 
 from ckan.lib.helpers import json
 from ckan.lib.munge import munge_tag
+from ckan.model import Package, Session
 from ckanext.harvest.model import HarvestObject
 from ckanext.harvest.harvesters import HarvesterBase
 from ckanext.ddi.importer import DdiCkanMetadata
@@ -236,6 +238,16 @@ class NadaHarvester(HarvesterBase):
                 },
             ]
             pkg_dict['resources'] = resources
+            self._populate_org(harvest_object, pkg_dict)
+
+            extras = [list(e) for e in pkg_dict['extras']]
+            for idx, e in enumerate(extras):
+                if not e[1]:
+                    e[1] = '-'
+                if isinstance(e[1], list):
+                    e[1] = json.dumps(e[1])
+                extras[idx] = tuple(e)
+            pkg_dict['extras'] = extras
 
             log.debug('package dict: %s' % pkg_dict)
             return self._create_or_update_package(pkg_dict, harvest_object)
@@ -263,6 +275,12 @@ class NadaHarvester(HarvesterBase):
             if key in pkg_dict:
                 log.debug('Delete key %s from pkg_dict' % key)
                 del pkg_dict[key]
+        return pkg_dict
+
+    def _populate_org(self, harvest_object, pkg_dict):
+        source = harvest_object.job.source
+        owner_org = Session.query(Package.owner_org).filter(Package.id==source.id).scalar()
+        pkg_dict['owner_org'] = owner_org
         return pkg_dict
 
 

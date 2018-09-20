@@ -187,7 +187,7 @@ class ArrayDictValue(Value):
                 for inner_attribute in iterator:
                     item = {}
                     if hasattr(inner_attribute, 'text'):
-                        item.update({'value': inner_attribute.text.strip()})
+                        item.update({'value': (inner_attribute.text or '').strip()})
                     if inner_attribute.attrib:
                         item.update(inner_attribute.attrib)
                     value.append(item)

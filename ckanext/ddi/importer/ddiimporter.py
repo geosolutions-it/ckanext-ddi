@@ -8,7 +8,13 @@ from ckan.lib.munge import munge_title_to_name, munge_name
 from ckanext.harvest.harvesters import HarvesterBase
 from ckanext.ddi.importer import metadata
 
-from ckanext.scheming.helpers import scheming_get_dataset_schema
+SCHEMING_ENABLED=True
+
+try: 
+    from ckanext.scheming.helpers import scheming_get_dataset_schema
+except ImportError:
+    SCHEMING_ENABLED=False    
+    pass
 
 import ckanapi
 
@@ -185,8 +191,8 @@ class DdiImporter(HarvesterBase):
 
 
 def _get_dataset_schema():
-
-    return scheming_get_dataset_schema('dataset')
+    if SCHEMING_ENABLED:
+        return scheming_get_dataset_schema('dataset')
 
 
 def _get_data_collection_technique_value(xml_value):
